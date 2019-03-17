@@ -1,18 +1,26 @@
 // @flow
 
-type SetContext<V> = (context: string) => BluePrint<V>;
+type SetValidate<V> = (...validators: string[]) => BluePrint<V>;
 
-type SetValidate<V> = (...args: Array<string>) => BluePrint<V>;
+type SetSanitize<V> = (...sanitizers: string[]) => BluePrint<V>;
 
-type SetSanitize<V> = (...args: Array<string>) => BluePrint<V>;
+type SetTag<V> = (...tags: string[]) => BluePrint<V>;
 
-type SetChildren<V> = (...args: *[]) => BluePrint<V>;
+type SetFields<V> = (
+  type: string,
+  fields: *[],
+  determiner?: () => boolean,
+) => BluePrint<V>;
 
-type SetAllow<V> = (role: string, scope: string[]) => BluePrint<V>;
+type SetAllow<V> = (role: string, ...scope: string[]) => BluePrint<V>;
 
-type SetDeny<V> = (role: string, scope: string[]) => BluePrint<V>;
+type SetValue<V> = (value: V) => BluePrint<V>;
+
+type SetDeny<V> = (role: string, ...scope: string[]) => BluePrint<V>;
 
 type SetUse<V> = (middleware: FieldMiddleware<V>) => BluePrint<V>;
+
+type SetOptions<V> = (options: {[string]: mixed}) => BluePrint<V>;
 
 type FieldMiddleware<V> = (event: string, field: BluePrint<V>) => BluePrint<V>;
 
@@ -20,44 +28,48 @@ type BluePrint<V: *> = {
   code: string,
   attributes: {
     label: null | string,
-    defaultValue: V,
-    context: null | string,
+    value?: V,
     validate: Array<string>,
     sanitize: Array<string>,
     middleware: FieldMiddleware<V>[],
+    fields: *[],
+    tags: string[],
+    options: {[string]: mixed}
   },
-  context: SetContext<V>,
   validate: SetValidate<V>,
   sanitize: SetSanitize<V>,
   allow: SetAllow<V>,
   deny: SetDeny<V>,
+  value: SetValue<V>,
   use: SetUse<V>,
-  children: SetChildren<V>,
+  tag: SetTag<V>,
+  fields: SetFields<V>,
+  options: SetOptions<V>,
 };
 
-function context(context) {
-  return { ...this, attributes: { ...this.attributes, context } };
+function validate(...validators) {
+  return { ...this, attributes: { ...this.attributes, validate: validators } };
 }
 
-function validate(...args) {
-  return { ...this, attributes: { ...this.attributes, validate: args } };
+function value(value) {
+  return { ...this, attributes: { ...this.attributes, value } };
 }
 
-function sanitize(...args) {
-  return { ...this, attributes: { ...this.attributes, sanitize: args } };
+function sanitize(...sanitizers) {
+  return { ...this, attributes: { ...this.attributes, sanitize: sanitizers } };
 }
 
-function children(...args) {
+function fields(type, fields, determiner) {
   return {
     ...this,
     attributes: {
       ...this.attributes,
-      children: [...(this.attributes.children || []), args],
+      fields: [...(this.attributes.fields || []), { type, fields, determiner }],
     },
   };
 }
 
-function allow(role, scope) {
+function allow(role, ...scope) {
   return {
     ...this,
     attributes: {
@@ -67,12 +79,22 @@ function allow(role, scope) {
   };
 }
 
-function deny(role, scope) {
+function deny(role, ...scope) {
   return {
     ...this,
     attributes: {
       ...this.attributes,
       allow: [...(this.attributes.deny || []), [role, scope]],
+    },
+  };
+}
+
+function tag(...tags) {
+  return {
+    ...this,
+    attributes: {
+      ...this.attributes,
+      tags: [...(this.attributes.tags || []), ...tags],
     },
   };
 }
@@ -87,47 +109,63 @@ function use(middleware) {
   };
 }
 
-const field = <V: *>(
-  code: string,
-  label: string,
-  defaultValue: V,
-): BluePrint<V> => ({
+function options(options) {
+  return { ...this, attributes: { ...this.attributes, options  } };
+}
+
+const field = <V: *>(code: string, label: string): BluePrint<V> => ({
   code,
   attributes: {
     label,
-    defaultValue,
-    context: null,
-    context: null,
     validate: [],
     sanitize: [],
     middleware: [],
+    tags: [],
+    fields: [],
+    options: {}
   },
-  context,
   validate,
   sanitize,
   allow,
   deny,
   use,
-  children,
+  tag,
+  fields,
+  value,
+  options
 });
 
 const schema = [
-  field<string>('first_name', 'First Name', '')
-    .context('string')
+  field<string>('first_name', 'First Name')
+    .value('Hi')
+    .tag('awesome', 'main')
     .use((event, blueprint) => {
       return blueprint;
     })
     .validate('string,min:4')
     .sanitize('string')
-    .deny('*', ['*'])
-    .allow('USER', ['R']),
-  field('phones', 'Phone Numbers', [])
-    .context('collection')
-    .children(
-      field<string | null>('area_code', 'Area Code', null).context('string'),
-      field<string>('phone_number', 'Phone Number', '').context('string'),
-      field<string | null>('ext', 'Extension', null).context('string'),
-    ),
+    .deny('*', '*')
+    .allow('USER', 'R'),
+  field('phones', 'Phone Numbers').fields('collection', [
+    field<string | null>('area_code', 'Area Code'),
+    field<string>('phone_number', 'Phone Number'),
+    field<string | null>('ext', 'Extension'),
+  ]),
 ];
 
 console.log(schema);
+
+const populate = () => {};
+
+const p = populate(schema)
+  .with({}, ['DB'], ['W'])
+  .merge({}, ['USER'], ['W'])
+  .then((schema) => {
+    const obj = schemaToObj(schema);
+    return schema;
+  })
+  .then((schema) => {
+    return schema.
+  });
+
+
