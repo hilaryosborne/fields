@@ -146,6 +146,7 @@ const schema = [
     .sanitize('string')
     .deny('*', '*')
     .allow('USER', 'R'),
+  // While populating we should spread operator
   field('phones', 'Phone Numbers').fields('collection', [
     field<string | null>('area_code', 'Area Code'),
     field<string>('phone_number', 'Phone Number'),
@@ -155,17 +156,12 @@ const schema = [
 
 console.log(schema);
 
-const populate = () => {};
+const fromDB = await populate(schema, {}, ['DB'], ['W']);
+const withUserInput = await populate(fromDB, {}, ['USER'], ['W']);
+const validated = await verify(withUserInput);
+const masked = await mask(withUserInput, ['USER'], ['R']);
 
-const p = populate(schema)
-  .with({}, ['DB'], ['W'])
-  .merge({}, ['USER'], ['W'])
-  .then((schema) => {
-    const obj = schemaToObj(schema);
-    return schema;
-  })
-  .then((schema) => {
-    return schema.
-  });
+const toObjs = convertToObj(masked);
+const toAPI = convertToAPI(masked);
 
 
