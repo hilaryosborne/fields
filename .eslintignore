@@ -1,0 +1,10 @@
+bin/**
+build/**
+coverage/**
+**/*.spec.js
+**/*.min.js
+**/node_modules/**
+**/public/**
+**/specs/**
+setupTests.js
+**/__mocks__/**

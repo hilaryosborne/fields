@@ -1,0 +1,17 @@
+[ignore]
+
+[include]
+.*/node_modules
+.*/src
+
+[libs]
+./flow-typed/
+./flow-typed/npm/
+
+[lints]
+sketchy-null=warn
+untyped-import=warn
+
+[options]
+module.file_ext=.js
+module.name_mapper='^src' ->'<PROJECT_ROOT>/src'
