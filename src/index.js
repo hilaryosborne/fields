@@ -1,41 +1,44 @@
 // @flow
 
-type FieldSchema = *[];
+import { simpleValidator } from './validation';
 
-type FieldRole<V> = string | ((field: BluePrint<V>) => string);
+export type FieldSchema = *[];
 
-type FieldScope<V> = string | ((field: BluePrint<V>) => string);
+export type FieldRole<V> = string | ((field: BluePrint<V>) => string);
 
-type SetValidate<V> = (...validators: string[]) => BluePrint<V>;
+export type FieldScope<V> = string | ((field: BluePrint<V>) => string);
 
-type SetSanitize<V> = (...sanitizers: string[]) => BluePrint<V>;
+export type SetValidate<V> = (...validators: Array<(*) => BluePrint<V>>) => BluePrint<V>;
 
-type SetTag<V> = (...tags: string[]) => BluePrint<V>;
+export type SetValidated<V> = (result: null | boolean, messages: string[]) => BluePrint<V>;
 
-type SetFields<V> = (type: string, fields: *[], determiner?: () => boolean) => BluePrint<V>;
+export type SetSanitize<V> = (...sanitizers: Array<(*) => BluePrint<V>>) => BluePrint<V>;
 
-type SetValue<V> = (value: V) => BluePrint<V>;
+export type SetTag<V> = (...tags: string[]) => BluePrint<V>;
 
-type SetDefaultValue<V> = (defaultValue: V) => BluePrint<V>;
+export type SetFields<V> = (type: string, fields: *[], determiner?: () => boolean) => BluePrint<V>;
 
-type SetAllow<V> = (role: FieldRole<V>, ...scope: FieldScope<V>[]) => BluePrint<V>;
+export type SetValue<V> = (value: V) => BluePrint<V>;
 
-type SetDeny<V> = (role: FieldRole<V>, ...scope: FieldScope<V>[]) => BluePrint<V>;
+export type SetDefaultValue<V> = (defaultValue: V) => BluePrint<V>;
 
-type SetUse<V> = (middleware: FieldMiddleware<V>) => BluePrint<V>;
+export type SetAllow<V> = (role: FieldRole<V>, ...scope: FieldScope<V>[]) => BluePrint<V>;
 
-type SetOptions<V> = (options: { [string]: mixed }) => BluePrint<V>;
+export type SetDeny<V> = (role: FieldRole<V>, ...scope: FieldScope<V>[]) => BluePrint<V>;
 
-type FieldMiddleware<V> = (event: string, field: BluePrint<V>) => BluePrint<V>;
+export type SetUse<V> = (middleware: FieldMiddleware<V>) => BluePrint<V>;
 
-type BluePrint<V: *> = {
+export type SetOptions<V> = (options: { [string]: mixed }) => BluePrint<V>;
+
+export type FieldMiddleware<V> = (event: string, field: BluePrint<V>) => BluePrint<V>;
+
+export type BluePrint<V: *> = {
   code: string,
   attributes: {
     label: null | string,
     defaultValue?: V,
-    value?: V,
-    validate: Array<string>,
-    sanitize: Array<string>,
+    validate: Array<(*) => BluePrint<V>>,
+    sanitize: Array<(*) => BluePrint<V>>,
     middleware: FieldMiddleware<V>[],
     fields: *[],
     tags: string[],
@@ -43,7 +46,16 @@ type BluePrint<V: *> = {
     allow: Array<[FieldRole<V>, FieldScope<V>[]]>,
     deny: Array<[FieldRole<V>, FieldScope<V>[]]>,
   },
+  store: {
+    raw?: V,
+    value?: V,
+  },
+  validation: {
+    result: null | boolean,
+    messages: string[],
+  },
   validate: SetValidate<V>,
+  validated: SetValidated<V>,
   sanitize: SetSanitize<V>,
   allow: SetAllow<V>,
   deny: SetDeny<V>,
@@ -59,13 +71,16 @@ function validate(...validators) {
   return { ...this, attributes: { ...this.attributes, validate: validators } };
 }
 
+function validated(result, messages) {
+  return { ...this, validation: { ...this.validation, result, messages } };
+}
+
 function defaultValue(defaultValue) {
   return { ...this, attributes: { ...this.attributes, defaultValue } };
 }
 
 function value(value) {
-  console.log(value, 'THIS IS ME');
-  return { ...this, attributes: { ...this.attributes, value } };
+  return { ...this, store: { ...this.store, raw: value, value } };
 }
 
 function sanitize(...sanitizers) {
@@ -126,6 +141,8 @@ function options(options) {
   return { ...this, attributes: { ...this.attributes, options } };
 }
 
+function trigger() {}
+
 const field = <V: *>(code: string, label: string): BluePrint<V> => ({
   code,
   attributes: {
@@ -139,11 +156,21 @@ const field = <V: *>(code: string, label: string): BluePrint<V> => ({
     allow: [],
     deny: [],
   },
+  store: {
+    raw: undefined,
+    value: undefined,
+  },
+  validation: {
+    result: null,
+    messages: [],
+  },
   validate,
+  validated,
   sanitize,
   allow,
   deny,
   use,
+  trigger,
   tag,
   fields,
   value,
@@ -158,8 +185,8 @@ const schema = [
     .use((event, blueprint) => {
       return blueprint;
     })
-    .validate('string,min:4')
-    .sanitize('string')
+    .validate(simpleValidator('required|min:4'))
+    .sanitize(field => ({ ...field }.value(field.attributes.value.toUpperCase())))
     .deny('*', '*')
     .allow('USER', 'R')
     .allow('DB', 'R', 'W'),
@@ -229,7 +256,9 @@ const populateSync: PopulateSync = (schema, data, roles, scope) =>
     if (isDeniedSync(field, roles, scope) && !isAllowedSync(field, roles, scope)) {
       return field;
     }
-    return {...field}.value(data[field.code]);
+    // This is nice but what about fields?
+    // Should we also store the value for parents
+    return { ...field }.value(data[field.code]).trigger('SET_VALUE');
   }, []);
 
 const fromDB = populateSync(schema, { first_name: 'Tom' }, ['DB'], ['W']);
