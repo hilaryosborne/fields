@@ -28,9 +28,17 @@ export type SetDeny<V> = (role: FieldRole<V>, ...scope: FieldScope<V>[]) => Blue
 
 export type SetUse<V> = (middleware: FieldMiddleware<V>) => BluePrint<V>;
 
+export type FieldEvent = {
+  event: string,
+  data: mixed,
+  [string]: mixed,
+};
+
+export type TriggerFieldEvent<V> = (event: FieldEvent, field?: BluePrint<V>) => BluePrint<V>;
+
 export type SetOptions<V> = (options: { [string]: mixed }) => BluePrint<V>;
 
-export type FieldMiddleware<V> = (event: string, field: BluePrint<V>) => BluePrint<V>;
+export type FieldMiddleware<V> = (event: FieldEvent, field: BluePrint<V>) => BluePrint<V>;
 
 export type BluePrint<V: *> = {
   code: string,
@@ -62,6 +70,7 @@ export type BluePrint<V: *> = {
   value: SetValue<V>,
   defaultValue: SetDefaultValue<V>,
   use: SetUse<V>,
+  trigger: TriggerFieldEvent<V>,
   tag: SetTag<V>,
   fields: SetFields<V>,
   options: SetOptions<V>,
@@ -141,7 +150,9 @@ function options(options) {
   return { ...this, attributes: { ...this.attributes, options } };
 }
 
-function trigger() {}
+function trigger(event) {
+  return this.attributes.middleware.reduce((field, middleware) => middleware(event, field), this);
+}
 
 const field = <V: *>(code: string, label: string): BluePrint<V> => ({
   code,
@@ -164,13 +175,13 @@ const field = <V: *>(code: string, label: string): BluePrint<V> => ({
     result: null,
     messages: [],
   },
+  use,
+  trigger,
   validate,
   validated,
   sanitize,
   allow,
   deny,
-  use,
-  trigger,
   tag,
   fields,
   value,
@@ -185,8 +196,8 @@ const schema = [
     .use((event, blueprint) => {
       return blueprint;
     })
-    .validate(simpleValidator('required|min:4'))
-    .sanitize(field => ({ ...field }.value(field.attributes.value.toUpperCase())))
+    // .validate(simpleValidator('required|min:4'))
+    // .sanitize(field => ({ ...field }.value(field.attributes.value.toUpperCase())))
     .deny('*', '*')
     .allow('USER', 'R')
     .allow('DB', 'R', 'W'),
@@ -258,7 +269,7 @@ const populateSync: PopulateSync = (schema, data, roles, scope) =>
     }
     // This is nice but what about fields?
     // Should we also store the value for parents
-    return { ...field }.value(data[field.code]).trigger('SET_VALUE');
+    return { ...field }.trigger('SET_VALUE', data[field.code]);
   }, []);
 
 const fromDB = populateSync(schema, { first_name: 'Tom' }, ['DB'], ['W']);
