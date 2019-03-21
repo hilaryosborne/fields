@@ -1,5 +1,7 @@
 // @flow
 
+import shortid from 'shortid';
+
 import { allowFor, denyFor, simplyValidate, toUpperCase } from './middleware';
 
 export type FieldSchema = *[];
@@ -15,8 +17,8 @@ export type SetDefaultValue<V> = (defaultValue: V) => BluePrint<V>;
 export type SetUse<V> = (middleware: FieldMiddleware<V>) => BluePrint<V>;
 
 export type FieldEvent = {
+  uuid: string,
   event: string,
-  data: mixed,
   [string]: mixed,
 };
 
@@ -35,6 +37,7 @@ export type BluePrint<V: *> = {
     fields: *[],
     tags: string[],
     options: { [string]: mixed },
+    [string]: mixed,
   },
   value: SetValue<V>,
   defaultValue: SetDefaultValue<V>,
@@ -133,10 +136,14 @@ const schema = [
 
 // const fromDB = populateSync(schema, { first_name: 'Tom' }, ['DB'], ['W']);
 
-schema[0].trigger({
+const newField = schema[0].trigger({
+  uuid: shortid(),
   event: 'APPLY_POLICIES',
-  data: {}
+  roles: ['DB'],
+  scope: ['W'],
 });
+
+console.log(newField);
 
 // console.log();
 // const withUserInput = await populate(fromDB, {}, ['USER'], ['W']);
