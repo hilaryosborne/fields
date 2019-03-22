@@ -2,7 +2,7 @@
 
 import shortid from 'shortid';
 
-import { allowFor, denyFor, simplyValidate, toUpperCase } from './middleware';
+import { withPolicies, denyFor, allowFor, simplyValidate, toUpperCase } from './middleware';
 
 export type FieldSchema = *[];
 
@@ -103,6 +103,7 @@ const field = <V: *>(code: string, label: string): BluePrint<V> => ({
     fields: [],
     options: {},
   },
+  etc: {},
   store: {
     raw: undefined,
     value: undefined,
@@ -120,7 +121,6 @@ const schema = [
   field<string>('first_name', 'First Name')
     .defaultValue('Hi')
     .tag('awesome', 'main')
-    .use(denyFor('*', '*'))
     .use(allowFor('USER', 'R'))
     .use(allowFor('DB', 'R', 'W'))
     .use(simplyValidate('required|min:4'))
