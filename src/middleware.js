@@ -1,46 +1,12 @@
 import type { BluePrint, FieldEvent } from './index';
 import validator from 'validatorjs';
-import eventMatchesPolicies from './eventMatchesPolicies';
+import eventMatchesPolicies from './Helpers/eventMatchesPolicies';
 export type FieldRole<V> = string | ((field: BluePrint<V>) => string);
 export type FieldScope<V> = string | ((field: BluePrint<V>) => string);
 
-export type DenyFor<V> = (
-  role: FieldRole<*>,
-  ...scope: FieldScope<*>[]
-) => (event: FieldEvent, field: BluePrint<*>) => BluePrint<*>;
 
-export const denyFor: DenyFor = (role, ...scope) => (event, field) =>
-  event.event === 'APPLY_POLICIES' && eventMatchesPolicies(field, [role], scope, event.roles, event.scope)
-    ? {
-        ...field,
-        etc: {
-          ...field.etc,
-          policyCheck: {
-            eventId: event.uuid,
-            result: false,
-          },
-        },
-      }
-    : field;
 
-export type AllowFor<V> = (
-  role: FieldRole<*>,
-  ...scope: FieldScope<*>[]
-) => (event: FieldEvent, field: BluePrint<*>) => BluePrint<*>;
 
-export const allowFor: AllowFor = (role, ...scope) => (event, field) =>
-  event.event === 'APPLY_POLICIES' && eventMatchesPolicies(field, [role], scope, event.roles, event.scope)
-    ? {
-        ...field,
-        etc: {
-          ...field.etc,
-          policyCheck: {
-            eventId: event.uuid,
-            result: true,
-          },
-        },
-      }
-    : field;
 
 export type ToUpperCase = (event: FieldEvent, field: BluePrint<*>) => BluePrint<*>;
 

@@ -1,7 +1,6 @@
 // @flow
 
-import type { FieldRole, FieldScope } from './middleware';
-import type { BluePrint } from './index';
+import type { FieldRole, FieldScope } from '../middleware';
 
 type EventMatchesPolicies = (
   field: BluePrint<*>,

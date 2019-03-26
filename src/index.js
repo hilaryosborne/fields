@@ -6,48 +6,6 @@ import { denyFor, allowFor, simplyValidate, toUpperCase } from './middleware';
 
 export type FieldSchema = *[];
 
-export type SetTag<V> = (...tags: string[]) => BluePrint<V>;
-
-export type SetFields<V> = (type: string, fields: *[], determiner?: () => boolean) => BluePrint<V>;
-
-export type SetValue<V> = (value: V) => BluePrint<V>;
-
-export type SetDefaultValue<V> = (defaultValue: V) => BluePrint<V>;
-
-export type SetUse<V> = (middleware: FieldMiddleware<V>) => BluePrint<V>;
-
-export type FieldEvent = {
-  uuid: string,
-  event: string,
-  [string]: mixed,
-};
-
-export type TriggerFieldEvent<V> = (event: FieldEvent, field?: BluePrint<V>) => BluePrint<V>;
-
-export type SetOptions<V> = (options: { [string]: mixed }) => BluePrint<V>;
-
-export type FieldMiddleware<V> = (event: FieldEvent, field: BluePrint<V>) => BluePrint<V>;
-
-export type BluePrint<V: *> = {
-  code: string,
-  attributes: {
-    label: null | string,
-    defaultValue?: V,
-    middleware: FieldMiddleware<V>[],
-    fields: *[],
-    tags: string[],
-    options: { [string]: mixed },
-    [string]: mixed,
-  },
-  value: SetValue<V>,
-  defaultValue: SetDefaultValue<V>,
-  use: SetUse<V>,
-  trigger: TriggerFieldEvent<V>,
-  tag: SetTag<V>,
-  fields: SetFields<V>,
-  options: SetOptions<V>,
-};
-
 function defaultValue(defaultValue) {
   return { ...this, attributes: { ...this.attributes, defaultValue } };
 }
