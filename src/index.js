@@ -2,7 +2,7 @@
 
 import shortid from 'shortid';
 
-import { withPolicies, denyFor, allowFor, simplyValidate, toUpperCase } from './middleware';
+import { denyFor, allowFor, simplyValidate, toUpperCase } from './middleware';
 
 export type FieldSchema = *[];
 
@@ -121,6 +121,7 @@ const schema = [
   field<string>('first_name', 'First Name')
     .defaultValue('Hi')
     .tag('awesome', 'main')
+    .use(denyFor('*', '*'))
     .use(allowFor('USER', 'R'))
     .use(allowFor('DB', 'R', 'W'))
     .use(simplyValidate('required|min:4'))
@@ -140,7 +141,7 @@ const newField = schema[0].trigger({
   uuid: shortid(),
   event: 'APPLY_POLICIES',
   roles: ['DB'],
-  scope: ['W'],
+  scope: ['R'],
 });
 
 console.log(newField);
