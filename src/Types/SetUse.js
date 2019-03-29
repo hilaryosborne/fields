@@ -1,3 +1,6 @@
 // @flow
 
-export type SetUse<V> = (middleware: FieldMiddleware<V>) => BluePrint<V>;
+import type { BluePrint } from './BluePrint';
+import type { BluePrintMiddleware } from './BluePrintMiddleware';
+
+export type SetUse = (middleware: BluePrintMiddleware) => BluePrint;

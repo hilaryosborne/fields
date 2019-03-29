@@ -1,32 +1,20 @@
 // @flow
 
-import type {
-  FieldMiddleware,
-  SetDefaultValue,
-  SetFields,
-  SetOptions,
-  SetTag,
-  SetUse,
-  SetValue,
-  TriggerFieldEvent,
-} from '../index';
+import type { BluePrintMiddleware } from './BluePrintMiddleware';
+import type { TriggerEvent } from './TriggerEvent';
+import type { SetTag } from './SetTag';
+import type { SetUse } from './SetUse';
 
-export type BluePrint<V: *> = {
+export type BluePrint = {
   code: string,
   attributes: {
     label: null | string,
-    defaultValue?: V,
-    middleware: FieldMiddleware<V>[],
-    fields: *[],
+    middleware: BluePrintMiddleware[],
     tags: string[],
-    options: { [string]: mixed },
     [string]: mixed,
   },
-  value: SetValue<V>,
-  defaultValue: SetDefaultValue<V>,
-  use: SetUse<V>,
-  trigger: TriggerFieldEvent<V>,
-  tag: SetTag<V>,
-  fields: SetFields<V>,
-  options: SetOptions<V>,
+  etc: *,
+  tag: SetTag,
+  use: SetUse,
+  trigger: TriggerEvent,
 };

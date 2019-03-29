@@ -1,3 +1,5 @@
 // @flow
 
-export type SetTag<V> = (...tags: string[]) => BluePrint<V>;
+import type { BluePrint } from './BluePrint';
+
+export type SetTag = (...tags: string[]) => BluePrint;

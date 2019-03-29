@@ -1,13 +1,15 @@
 // @flow
 
-import type { FieldRole, FieldScope } from '../middleware';
+import type { BluePrint } from '../Types/BluePrint';
+import type { PolicyRole } from '../Types/PolicyRole';
+import type { PolicyScope } from '../Types/PolicyScope';
 
 type EventMatchesPolicies = (
-  field: BluePrint<*>,
-  policyRoles: FieldRole<*>[],
-  policyScope: FieldScope<*>[],
-  eventRoles: FieldRole<*>[],
-  eventScope: FieldScope<*>[],
+  field: BluePrint,
+  policyRoles: PolicyRole[],
+  policyScope: PolicyScope[],
+  eventRoles: PolicyRole[],
+  eventScope: PolicyScope[],
 ) => boolean;
 
 const eventMatchesPolicies: EventMatchesPolicies = (field, policyRoles, policyScope, eventRoles, eventScope) => {
