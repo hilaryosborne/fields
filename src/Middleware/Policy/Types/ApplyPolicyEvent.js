@@ -1,7 +1,7 @@
 // @flow
 
-import type { PolicyRole } from '../PolicyRole';
-import type { PolicyScope } from '../PolicyScope';
+import type { PolicyRole } from './PolicyRole';
+import type { PolicyScope } from './PolicyScope';
 
 export type ApplyPolicyEvent = {
   uuid: string,

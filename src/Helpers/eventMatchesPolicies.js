@@ -1,8 +1,8 @@
 // @flow
 
 import type { BluePrint } from '../Types/BluePrint';
-import type { PolicyRole } from '../Types/PolicyRole';
-import type { PolicyScope } from '../Types/PolicyScope';
+import type { PolicyRole } from '../Middleware/Policy/Types/PolicyRole';
+import type { PolicyScope } from '../Middleware/Policy/Types/PolicyScope';
 
 type EventMatchesPolicies = (
   field: BluePrint,

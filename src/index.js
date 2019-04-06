@@ -2,18 +2,33 @@
 
 import shortid from 'shortid';
 import { field } from './Field';
-import { denyFor, allowFor, hasSimpleValue, simplyValidate } from './Middleware';
+import { fields, fieldsDefault, denyFor, allowFor, simpleValue, simpleDefault, simpleValidation } from './Middleware';
 
 const schema = [
   field('first_name', 'First Name')
     .tag('awesome', 'main')
-    .use(hasSimpleValue('Hi'))
+    .use(simpleValue)
+    .use(simpleDefault('Hi'))
     .use(denyFor('*', '*'))
     .use(allowFor('USER', 'R'))
     .use(allowFor('DB', 'R', 'W'))
-    .use(simplyValidate('required|min:4')),
+    .use(simpleValidation('required|min:4')),
+  field('membership', 'Membership').use(
+    fields(
+      field('membership_level', 'Membership Level')
+        .use(simpleValue)
+        .use(denyFor('*', '*')),
+      field('membership_type', 'Membership Type')
+        .use(simpleValue)
+        .use(denyFor('*', '*')),
+    ),
+    fieldsDefault({
+      membership_level: 'level_8',
+      membership_type: 'GOLD',
+    }),
+  ),
   // field('phones', 'Phone Numbers').use(
-  //   collection([field('area_code', 'Area Code'), field('phone_number', 'Phone Number'), field('ext', 'Extension')], []),
+  //   hasFields([field('area_code', 'Area Code'), field('phone_number', 'Phone Number'), field('ext', 'Extension')], []),
   // ),
 ];
 
@@ -21,7 +36,7 @@ const schema = [
 
 // const fromDB = populateSync(schema, { first_name: 'Tom' }, ['DB'], ['W']);
 
-const newField = schema[0]
+const newField = schema[1]
   .trigger({
     uuid: shortid(),
     action: 'APPLY_POLICIES',
@@ -32,10 +47,18 @@ const newField = schema[0]
     uuid: shortid(),
     action: 'APPLY_DEFAULT_VALUE',
   })
+  // .trigger({
+  //   uuid: shortid(),
+  //   action: 'APPLY_VALUE',
+  //   value: 'Buggs',
+  // });
   .trigger({
     uuid: shortid(),
     action: 'APPLY_VALUE',
-    value: 'Thomas'
+    value: {
+      membership_level: 'level_5',
+      membership_type: 'premium',
+    },
   });
 
 console.log(newField);

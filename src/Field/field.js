@@ -10,14 +10,8 @@ const field = (code: string, label: string): BluePrint => ({
     tags: [],
   },
   etc: {},
-  use: function use(middleware) {
-    return {
-      ...this,
-      attributes: {
-        ...this.attributes,
-        middleware: [...(this.attributes.middleware || []), middleware],
-      },
-    };
+  use: function use(...middlewares) {
+    return middlewares.reduce((curr: BluePrint, middleware) => middleware(curr), this);
   },
   trigger: function trigger(event) {
     return this.attributes.middleware.reduce((field, middleware) => middleware(event, field), this);

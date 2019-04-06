@@ -3,4 +3,4 @@
 import type { BluePrint } from './BluePrint';
 import type { BluePrintMiddleware } from './BluePrintMiddleware';
 
-export type SetUse = (middleware: BluePrintMiddleware) => BluePrint;
+export type SetUse = (...middlewares: BluePrintMiddleware[]) => BluePrint;

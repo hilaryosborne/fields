@@ -1,17 +1,17 @@
 // @flow
 
-import eventMatchesPolicies from '../Helpers/eventMatchesPolicies';
-import type { BluePrint } from '../Types/BluePrint';
-import type { PolicyRole } from '../Types/PolicyRole';
-import type { PolicyScope } from '../Types/PolicyScope';
-import type { ApplyPolicyEvent } from '../Types/Events/ApplyPolicyEvent';
+import { eventMatchesPolicies } from '../../Helpers';
+import type { BluePrint } from '../../Types/BluePrint';
+import type { ApplyPolicyEvent } from './Types/ApplyPolicyEvent';
+import type { PolicyRole } from './Types/PolicyRole';
+import type { PolicyScope } from './Types/PolicyScope';
 
-export type AllowFor = (
+export type DenyForEventHandler = (
   role: PolicyRole,
-  ...scope: PolicyScope[]
+  scope: PolicyScope[],
 ) => (event: ApplyPolicyEvent, field: BluePrint) => BluePrint;
 
-export const allowFor: AllowFor = (role, ...scope) => (event, field) => {
+const denyForEventHandler: DenyForEventHandler = (role, scope) => (event, field) => {
   switch (event.action) {
     case 'APPLY_POLICIES': {
       if (eventMatchesPolicies(field, [role], scope, event.roles, event.scope)) {
@@ -21,7 +21,7 @@ export const allowFor: AllowFor = (role, ...scope) => (event, field) => {
             ...field.etc,
             policyCheck: {
               eventId: event.uuid,
-              result: true,
+              result: false,
             },
           },
         };
@@ -35,4 +35,4 @@ export const allowFor: AllowFor = (role, ...scope) => (event, field) => {
   }
 };
 
-export default allowFor;
+export default denyForEventHandler;
