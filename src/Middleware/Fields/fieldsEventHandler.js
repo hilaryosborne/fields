@@ -16,14 +16,18 @@ const fieldsEventHandler: FieldsEventHandler = fields => (event, field) => {
         etc: {
           ...field.etc,
           value: event.value,
-          fields: fields.map<BluePrint>(_field =>
-            ({ ..._field }.trigger({ ...event, value: event.value[_field.code] })),
-          ),
+          fields: field.etc.fields.map(_field => _field.trigger({ ...event, value: event.value[_field.code] })),
         },
       };
     }
     default: {
-      return field;
+      return {
+        ...field,
+        etc: {
+          ...field.etc,
+          fields: field.etc.fields.map(_field => _field.trigger(event)),
+        },
+      };
     }
   }
 };
