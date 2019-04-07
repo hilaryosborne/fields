@@ -2,6 +2,7 @@
 
 [include]
 .*/node_modules
+.*/dev
 .*/src
 
 [libs]
@@ -14,4 +15,5 @@ untyped-import=warn
 
 [options]
 module.file_ext=.js
+module.name_mapper='^dev' ->'<PROJECT_ROOT>/dev'
 module.name_mapper='^src' ->'<PROJECT_ROOT>/src'

@@ -1,6 +1,6 @@
 // @flow
 
-import { isPolicyAllowed } from '../../Helpers/index';
+import { isPolicyAllowed } from '../Policy/Helpers/index';
 import type { BluePrint } from '../../Types/BluePrint';
 import type { ApplyDefaultEvent } from '../../Types/Events/ApplyDefaultEvent';
 

@@ -1,6 +1,6 @@
 // @flow
 
-import fieldsEventHandler from "./fieldsEventHandler";
+import fieldsEventHandler from './fieldsEventHandler';
 import type { BluePrint } from '../../Types/BluePrint';
 
 type Fields = (...fields: BluePrint[]) => (parent: BluePrint) => BluePrint;
@@ -13,7 +13,7 @@ const fields: Fields = (...fields) => parent => ({
   },
   attributes: {
     ...parent.attributes,
-    middleware: [...(parent.attributes.middleware || []), fieldsEventHandler(fields)],
+    middleware: [...(parent.attributes.middleware || []), fieldsEventHandler],
   },
 });
 

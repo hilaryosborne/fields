@@ -1,6 +1,6 @@
 // @flow
 
-import { eventMatchesPolicies } from '../../Helpers';
+import { eventMatchesPolicies } from './Helpers/index';
 import type { BluePrint } from '../../Types/BluePrint';
 import type { ApplyPolicyEvent } from './Types/ApplyPolicyEvent';
 import type { PolicyRole } from './Types/PolicyRole';

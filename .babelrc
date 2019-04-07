@@ -3,10 +3,10 @@
     [
       "@babel/preset-env",
       {
-        "targets": "> 0.25%, not dead"
+        "targets": { "node": "current" }
       }
     ],
     "@babel/preset-flow"
   ],
-  "plugins": []
+  "plugins": ["@babel/plugin-proposal-class-properties", "@babel/plugin-transform-spread"]
 }

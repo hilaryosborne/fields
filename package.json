@@ -2,10 +2,13 @@
   "name": "fields",
   "version": "1.0.0",
   "description": "",
-  "main": "src/index.js",
+  "main": "dev/index.js",
   "scripts": {
     "start": "npx nps"
   },
+  "files": [
+    "lib"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hilaryosborne/fields.git"
@@ -17,9 +20,14 @@
   },
   "homepage": "https://github.com/hilaryosborne/fields#readme",
   "dependencies": {
+    "shortid": "^2.2.14",
+    "validatorjs": "^3.15.1"
+  },
+  "devDependencies": {
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.2.2",
     "@babel/node": "^7.2.2",
+    "@babel/plugin-proposal-class-properties": "^7.4.0",
     "@babel/plugin-transform-flow-strip-types": "^7.2.3",
     "@babel/preset-env": "^7.3.1",
     "@babel/preset-flow": "^7.0.0",
@@ -27,12 +35,30 @@
     "babel-eslint": "^10.0.1",
     "babel-plugin-transform-flow-strip-types": "^6.22.0",
     "babel-preset-env": "^1.7.0",
+    "flow-bin": "^0.93.0",
     "nodemon": "^1.18.10",
-    "nps-utils": "^1.7.0",
-    "shortid": "^2.2.14",
-    "validatorjs": "^3.15.1"
+    "nps-utils": "^1.7.0"
   },
-  "devDependencies": {
-    "flow-bin": "^0.93.0"
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{js}"
+    ],
+    "testMatch": [
+      "<rootDir>/src/**/__tests__/**/*.{js}"
+    ],
+    "setupTestFrameworkScriptFile": "./setupTests.js",
+    "testURL": "http://localhost",
+    "transform": {
+      "^.+\\.(js)$": "<rootDir>/node_modules/babel-jest"
+    },
+    "transformIgnorePatterns": [
+      "[/\\\\]node_modules[/\\\\].+\\.(js)$",
+      "^.+\\.module\\.(css|sass|scss)$"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "node"
+    ]
   }
 }

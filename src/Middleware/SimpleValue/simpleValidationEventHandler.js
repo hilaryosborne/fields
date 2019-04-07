@@ -2,9 +2,9 @@
 
 import validator from 'validatorjs';
 import type { BluePrint } from '../../Types/BluePrint';
-import type { ApplyValidationEvent } from '../../Types/Events/ApplyValidationEvent';
+import type { ApplySimpleValidationEvent } from '../../Types/Events/ApplyValidationEvent';
 
-type SimpleValidationEventHandler = (rules: string[]) => (event: ApplyValidationEvent, field: BluePrint) => BluePrint;
+type SimpleValidationEventHandler = (rules: string[]) => (event: ApplySimpleValidationEvent, field: BluePrint) => BluePrint;
 
 export const simpleValidationEventHandler: SimpleValidationEventHandler = rules => (event, field) => {
   switch (event.action) {

@@ -3,9 +3,9 @@
 import { isPolicyAllowed } from '../Policy/Helpers/index';
 import type { BluePrint } from '../../Types/BluePrint';
 
-type FieldsEventHandler = (event: *, field: BluePrint) => BluePrint;
+type GroupedEventHandler = (event: *, field: BluePrint) => BluePrint;
 
-const fieldsEventHandler: FieldsEventHandler = (event, field) => {
+const groupedEventHandler: GroupedEventHandler = (event, field) => {
   if (!isPolicyAllowed(field)) {
     return field;
   }
@@ -16,7 +16,9 @@ const fieldsEventHandler: FieldsEventHandler = (event, field) => {
         etc: {
           ...field.etc,
           value: event.value,
-          fields: field.etc.fields.map(_field => _field.trigger({ ...event, value: event.value[_field.code] })),
+          groups: event.value.map(val =>
+            field.etc.fields.map(_field => _field.trigger({ ...event, value: val[_field.code] })),
+          ),
         },
       };
     }
@@ -25,11 +27,11 @@ const fieldsEventHandler: FieldsEventHandler = (event, field) => {
         ...field,
         etc: {
           ...field.etc,
-          fields: field.etc.fields.map(_field => _field.trigger(event)),
+          groups: field.etc.groups.map(fields => fields.map(_field => _field.trigger(event))),
         },
       };
     }
   }
 };
 
-export default fieldsEventHandler;
+export default groupedEventHandler;

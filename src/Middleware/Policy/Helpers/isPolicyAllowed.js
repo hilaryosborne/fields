@@ -1,6 +1,6 @@
 // @flow
 
-import type { BluePrint } from '../Types/BluePrint';
+import type { BluePrint } from '../../../Types/BluePrint';
 
 type IsPolicyAllowed = (field: BluePrint) => boolean;
 
